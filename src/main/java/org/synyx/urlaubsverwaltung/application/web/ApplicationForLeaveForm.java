@@ -4,6 +4,7 @@ import org.synyx.urlaubsverwaltung.application.domain.Application;
 import org.synyx.urlaubsverwaltung.application.domain.VacationCategory;
 import org.synyx.urlaubsverwaltung.application.domain.VacationType;
 import org.synyx.urlaubsverwaltung.holidayreplacement.HolidayReplacementDto;
+import org.synyx.urlaubsverwaltung.holidayreplacement.HolidayReplacementEntity;
 import org.synyx.urlaubsverwaltung.period.DayLength;
 import org.synyx.urlaubsverwaltung.person.Person;
 
@@ -11,9 +12,7 @@ import java.math.BigDecimal;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
@@ -49,13 +48,8 @@ public class ApplicationForLeaveForm {
     // For special and unpaid leave a reason is required
     private String reason;
 
-    // Stands in while the person is on holiday
-    private Person holidayReplacement;
-
     private List<Person> holidayReplacementsSelection;
     private List<HolidayReplacementDto> holidayReplacements;
-
-    private String holidayReplacementNote;
 
     // Address and phone number during holiday
     private String address;
@@ -65,14 +59,6 @@ public class ApplicationForLeaveForm {
     private String comment;
 
     private Integer id;
-
-    public String getHolidayReplacementNote() {
-        return holidayReplacementNote;
-    }
-
-    public void setHolidayReplacementNote(String holidayReplacementNote) {
-        this.holidayReplacementNote = holidayReplacementNote;
-    }
 
     public Person getPerson() {
         return person;
@@ -128,14 +114,6 @@ public class ApplicationForLeaveForm {
 
     public void setReason(String reason) {
         this.reason = reason;
-    }
-
-    public Person getHolidayReplacement() {
-        return holidayReplacement;
-    }
-
-    public void setHolidayReplacement(Person holidayReplacement) {
-        this.holidayReplacement = holidayReplacement;
     }
 
     public String getStartDateIsoValue() {
@@ -196,6 +174,10 @@ public class ApplicationForLeaveForm {
 
     public Application generateApplicationForLeave() {
 
+        final List<HolidayReplacementEntity> replacementEntities = holidayReplacements.stream()
+            .map(HolidayReplacementEntity::from)
+            .collect(toList());
+
         Application applicationForLeave = new Application();
 
         applicationForLeave.setId(id);
@@ -210,8 +192,7 @@ public class ApplicationForLeaveForm {
         applicationForLeave.setVacationType(vacationType);
         applicationForLeave.setDayLength(dayLength);
         applicationForLeave.setReason(reason);
-        applicationForLeave.setHolidayReplacement(holidayReplacement);
-        applicationForLeave.setHolidayReplacementNote(holidayReplacementNote);
+        applicationForLeave.setHolidayReplacements(replacementEntities);
         applicationForLeave.setAddress(address);
         applicationForLeave.setTeamInformed(teamInformed);
 
@@ -233,8 +214,7 @@ public class ApplicationForLeaveForm {
             ", vacationType=" + vacationType +
             ", dayLength=" + dayLength +
             ", hours=" + hours +
-            ", holidayReplacement=" + holidayReplacement +
-            ", holidayReplacementNote='" + holidayReplacementNote + '\'' +
+            ", holidayReplacements=" + holidayReplacements +
             ", address='" + address + '\'' +
             ", teamInformed=" + teamInformed +
             '}';
@@ -283,8 +263,7 @@ public class ApplicationForLeaveForm {
         private DayLength dayLength;
         private BigDecimal hours;
         private String reason;
-        private Person holidayReplacement;
-        private String holidayReplacementNote;
+        private List<HolidayReplacementDto> holidayReplacements;
         private String address;
         private boolean teamInformed;
         private String comment;
@@ -335,16 +314,6 @@ public class ApplicationForLeaveForm {
             return this;
         }
 
-        public ApplicationForLeaveForm.Builder holidayReplacement(Person holidayReplacement) {
-            this.holidayReplacement = holidayReplacement;
-            return this;
-        }
-
-        public ApplicationForLeaveForm.Builder holidayReplacementNote(String holidayReplacementNote) {
-            this.holidayReplacementNote = holidayReplacementNote;
-            return this;
-        }
-
         public ApplicationForLeaveForm.Builder address(String address) {
             this.address = address;
             return this;
@@ -365,6 +334,11 @@ public class ApplicationForLeaveForm {
             return this;
         }
 
+        public ApplicationForLeaveForm.Builder holidayReplacements(List<HolidayReplacementDto> holidayReplacementDtos) {
+            this.holidayReplacements = holidayReplacementDtos;
+            return this;
+        }
+
         public ApplicationForLeaveForm build() {
 
             final ApplicationForLeaveForm form = new ApplicationForLeaveForm();
@@ -378,12 +352,14 @@ public class ApplicationForLeaveForm {
             form.setDayLength(dayLength);
             form.setHours(hours);
             form.setReason(reason);
-            form.setHolidayReplacement(holidayReplacement);
-            form.setHolidayReplacementNote(holidayReplacementNote);
+            form.setHolidayReplacements(holidayReplacements);
             form.setAddress(address);
             form.setTeamInformed(teamInformed);
             form.setComment(comment);
             form.setId(id);
+            form.setHolidayReplacements(holidayReplacements);
+            List<Person> holidayReplacementsSelection = holidayReplacements.stream().map(HolidayReplacementDto::getPerson).collect(toList());
+            form.setHolidayReplacementsSelection(holidayReplacementsSelection);
 
             return form;
         }

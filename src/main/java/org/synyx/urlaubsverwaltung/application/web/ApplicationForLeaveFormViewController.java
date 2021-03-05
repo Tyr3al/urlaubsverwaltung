@@ -205,23 +205,22 @@ public class ApplicationForLeaveFormViewController {
     }
 
     @GetMapping("/application/{applicationId}/edit")
-    public String editApplicationForm(@PathVariable("applicationId") Integer applicationId, Model model) throws UnknownApplicationForLeaveException {
+    public String editApplicationForm(@PathVariable("applicationId") Integer applicationId, ApplicationForLeaveForm appForm,
+                                      Model model) throws UnknownApplicationForLeaveException {
 
-        final Optional<Application> maybeApplication = applicationInteractionService.get(applicationId);
-        if (maybeApplication.isEmpty()) {
-            throw new UnknownApplicationForLeaveException(applicationId);
-        }
 
-        final Application application = maybeApplication.get();
-        if (WAITING.compareTo(application.getStatus()) != 0) {
+        final ApplicationForLeaveForm applicationForLeaveForm = getAppFormFromFrontend(appForm)
+            .orElse(getAppFormFromDB(applicationId));
+
+        if(applicationForLeaveForm == null)
             return "application/app_notwaiting";
-        }
 
-        final ApplicationForLeaveForm applicationForLeaveForm = mapToApplicationForm(application);
         final Person person = personService.getSignedInUser();
 
         final Optional<Account> holidaysAccount = accountService.getHolidaysAccount(Year.now(clock).getValue(), person);
         if (holidaysAccount.isPresent()) {
+
+            applicationForLeaveForm.setHolidayReplacements(updateHolidayReplacements(applicationForLeaveForm));
             prepareApplicationForLeaveForm(person, applicationForLeaveForm, model);
         }
         model.addAttribute("noHolidaysAccount", holidaysAccount.isEmpty());
@@ -229,6 +228,27 @@ public class ApplicationForLeaveFormViewController {
         model.addAttribute("application", applicationForLeaveForm);
 
         return APP_FORM;
+    }
+
+    private ApplicationForLeaveForm getAppFormFromDB(Integer applicationId) throws UnknownApplicationForLeaveException {
+
+            final Optional<Application> maybeApplication = applicationInteractionService.get(applicationId);
+            if (maybeApplication.isEmpty()) {
+                throw new UnknownApplicationForLeaveException(applicationId);
+            }
+
+            final Application application = maybeApplication.get();
+            if (!WAITING.equals(application.getStatus())) {
+                return null;
+            }
+
+            return mapToApplicationForm(application);
+    }
+
+    private Optional<ApplicationForLeaveForm> getAppFormFromFrontend(ApplicationForLeaveForm appForm) {
+        if (appForm.getId() == null)
+            return Optional.empty();
+        else return Optional.of(appForm);
     }
 
     @PostMapping("/application/{applicationId}")

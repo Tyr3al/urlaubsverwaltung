@@ -1,6 +1,7 @@
 package org.synyx.urlaubsverwaltung.application.domain;
 
 import org.junit.jupiter.api.Test;
+import org.synyx.urlaubsverwaltung.holidayreplacement.HolidayReplacementEntity;
 import org.synyx.urlaubsverwaltung.period.DayLength;
 import org.synyx.urlaubsverwaltung.period.Period;
 import org.synyx.urlaubsverwaltung.person.Person;
@@ -169,6 +170,11 @@ class ApplicationTest {
         person.setPermissions(List.of(USER));
         person.setNotifications(List.of(NOTIFICATION_USER));
 
+        final HolidayReplacementEntity replacementEntity = new HolidayReplacementEntity();
+        replacementEntity.setId(1);
+        replacementEntity.setPerson(person);
+        replacementEntity.setNote("hello myself");
+
         final VacationType vacationType = new VacationType();
         vacationType.setCategory(VacationCategory.HOLIDAY);
 
@@ -183,7 +189,7 @@ class ApplicationTest {
         application.setHours(BigDecimal.TEN);
         application.setApplicationDate(LocalDate.EPOCH);
         application.setTwoStageApproval(true);
-        application.setHolidayReplacement(person);
+        application.setHolidayReplacements(List.of(replacementEntity));
         application.setApplier(person);
         application.setRemindDate(LocalDate.MAX);
         application.setBoss(person);
