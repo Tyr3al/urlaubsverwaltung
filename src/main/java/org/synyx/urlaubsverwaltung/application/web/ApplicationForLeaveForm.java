@@ -49,7 +49,8 @@ public class ApplicationForLeaveForm {
     // For special and unpaid leave a reason is required
     private String reason;
 
-    private List<Person> holidayReplacementsSelection = new ArrayList<>();
+    private Person holidayReplacementToAdd;
+
     private List<HolidayReplacementDto> holidayReplacements = new ArrayList<>();
 
     // Address and phone number during holiday
@@ -245,12 +246,12 @@ public class ApplicationForLeaveForm {
         this.holidayReplacements = holidayReplacements;
     }
 
-    public List<Person> getHolidayReplacementsSelection() {
-        return holidayReplacementsSelection;
+    public Person getHolidayReplacementToAdd() {
+        return holidayReplacementToAdd;
     }
 
-    public void setHolidayReplacementsSelection(List<Person> holidayReplacementsSelection) {
-        this.holidayReplacementsSelection = holidayReplacementsSelection;
+    public void setHolidayReplacementToAdd(Person holidayReplacementToAdd) {
+        this.holidayReplacementToAdd = holidayReplacementToAdd;
     }
 
     public static class Builder {
@@ -264,6 +265,7 @@ public class ApplicationForLeaveForm {
         private DayLength dayLength;
         private BigDecimal hours;
         private String reason;
+        private Person holidayReplacementToAdd;
         private List<HolidayReplacementDto> holidayReplacements;
         private String address;
         private boolean teamInformed;
@@ -340,6 +342,11 @@ public class ApplicationForLeaveForm {
             return this;
         }
 
+        public ApplicationForLeaveForm.Builder holidayReplacementToAdd(Person holidayReplacementToAdd) {
+            this.holidayReplacementToAdd = holidayReplacementToAdd;
+            return this;
+        }
+
         public ApplicationForLeaveForm build() {
 
             final ApplicationForLeaveForm form = new ApplicationForLeaveForm();
@@ -359,8 +366,7 @@ public class ApplicationForLeaveForm {
             form.setComment(comment);
             form.setId(id);
             form.setHolidayReplacements(holidayReplacements);
-            List<Person> holidayReplacementsSelection = holidayReplacements.stream().map(HolidayReplacementDto::getPerson).collect(toList());
-            form.setHolidayReplacementsSelection(holidayReplacementsSelection);
+            form.setHolidayReplacementToAdd(holidayReplacementToAdd);
 
             return form;
         }
