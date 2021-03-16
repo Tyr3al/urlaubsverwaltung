@@ -96,14 +96,14 @@ public class AbsenceOverviewViewController {
         this.workingTimeService = workingTimeService;
     }
 
-    @PreAuthorize(IS_PRIVILEGED_USER)
     @GetMapping
     public String absenceOverview(
         @RequestParam(required = false) Integer year,
         @RequestParam(required = false) String month,
-        @RequestParam(name = "department", required = false, defaultValue = "") List<String> rawSelectedDepartments,
-        Model model, Locale locale) {
+        @RequestParam(name = "department", required = false, defaultValue = "") List<String> rawSelectedDepartments, Model model, Locale locale) {
+
         final Person signedInUser = personService.getSignedInUser();
+
         final List<Department> departmentsOfUser = departmentService.getAllowedDepartmentsOfPerson(signedInUser);
         model.addAttribute("departments", departmentsOfUser);
 
