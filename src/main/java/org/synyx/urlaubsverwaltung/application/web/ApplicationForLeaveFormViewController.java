@@ -127,9 +127,11 @@ public class ApplicationForLeaveFormViewController {
         final Optional<Account> holidaysAccount = accountService.getHolidaysAccount(ZonedDateTime.now(clock).getYear(), person);
         if (holidaysAccount.isPresent()) {
 
-            appForLeaveForm.setStartDate(dateFormatAware.parse(startDateString).orElse(appForLeaveForm.getStartDate()));
-            appForLeaveForm.setEndDate(dateFormatAware.parse(endDateString).orElse(appForLeaveForm.getEndDate()));
+            final LocalDate startDate = dateFormatAware.parse(startDateString).orElse(appForLeaveForm.getStartDate());
+            final Supplier<Optional<LocalDate>> endDateSupplier = () -> Optional.ofNullable(appForLeaveForm.getEndDate());
 
+            appForLeaveForm.setStartDate(startDate);
+            appForLeaveForm.setEndDate(dateFormatAware.parse(endDateString).or(endDateSupplier).orElse(startDate));
             appForLeaveForm.setHolidayReplacements(updateHolidayReplacements(appForLeaveForm));
 
             prepareApplicationForLeaveForm(person, appForLeaveForm, model);

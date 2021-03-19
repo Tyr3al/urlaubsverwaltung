@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
@@ -48,8 +49,8 @@ public class ApplicationForLeaveForm {
     // For special and unpaid leave a reason is required
     private String reason;
 
-    private List<Person> holidayReplacementsSelection;
-    private List<HolidayReplacementDto> holidayReplacements;
+    private List<Person> holidayReplacementsSelection = new ArrayList<>();
+    private List<HolidayReplacementDto> holidayReplacements = new ArrayList<>();
 
     // Address and phone number during holiday
     private String address;
